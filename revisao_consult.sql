@@ -271,3 +271,7 @@ alter table paciente add constraint paciente_conv_fk foreign key (id_convenio) r
 select * from paciente;
 select * from convenio;
 delete from convenio where id = 2;
+
+--Forma correta 
+alter table paciente drop constraint paciente_conv_fk;
+alter table paciente add constraint paciente_conv_fk foreign key (id_convenio) references convenio(id)
