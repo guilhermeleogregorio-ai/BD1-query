@@ -99,6 +99,59 @@ insert into  v_disciplina_comp values(21,'PRW1','Programação para Web I',1);
 
 update v_disciplina_comp set id_departamento = 2 where id = 21;
 
+-- Agora tente inserir uma nova disciplina por meio da view, com os valores
+--a seguir, e verifique se deu certo:
+--id: 22, sigla: ‘PRW2’, nome: 'Programação para Web II’, id_departamento: 2
+
+insert into v_disciplina_comp values (22,'PRW2','Programação para Web II',2);
+
+--Crie uma visão chamada V_PROF_DEPENDENTE que liste o id e nome
+--dos professores e a quantidade de seus dependentes. Chame as colunas
+--de id_prof, nome_prof e qtde_dep, respectivamente.
+
+create view v_prof_dependente (id,nome_prof, qtd_dep) as 
+	select p.id , p.nome ,  count (d.id)
+	from professor p 
+	left join dependente d on p.id = d.id_professor
+	group by p.id, p.nome;
+
+select * from v_prof_dependente;
+
+--Crie uma visão chamada V_DISCIPLINA_PREREQ que liste a sigla, nome
+--e número de créditos das disciplinas, além da sigla e nome das
+--disciplinas que são pré-requisitos delas. Chame as colunas de sigla,
+--nome, creditos, sigla_prereq e nome_prereq, respectivamente.
+
+create view v_disciplina_prereq (sigla, nome , creditos, sigla_prereq , nome_prereq) as
+	select d.sigla, d.nome , d.creditos, p.sigla, p.nome
+	from disciplina d
+	left join disciplina_prerequisito pr on d.id = pr.id_disciplina
+	left join disciplina p on pr.id_prerequisito = p.id;
+	
+--Crie uma visão chamada V_DEP_PROF_DISC_SEM_PRE que liste o nome
+--do departamento, o nome do professor, a sigla e nome da disciplina, e o
+--período em que foram ministradas. Considere somente as disciplinas
+--que não possuem pré-requisitos. O período deve ser a concatenação de
+--ano com ‘/’ com semestre. Chame as colunas de depto_nome, prof_nome,
+--disc_sigla, disc_nome e período, respectivamente.
+
+CREATE VIEW v_dep_prof_disc_sem_pre (depto_nome, prof_nome, disc_sigla, disc_nome, periodo) AS
+    SELECT 
+        dep.nome,
+        prof.nome,
+        disc.sigla,
+        disc.nome,
+        t.ano || '/' || t.semestre
+    FROM departamento dep
+    INNER JOIN professor prof ON dep.id = prof.id_departamento
+    INNER JOIN turma t ON prof.id = t.id_professor
+    INNER JOIN disciplina disc ON t.id_disciplina = disc.id
+    WHERE disc.id NOT IN (
+        SELECT id_disciplina FROM disciplina_prerequisito
+    );
+--Elimine a visão de nome V_PROF_SALANUAL.
+
+drop view v_prof_salanual;
 
 
 
